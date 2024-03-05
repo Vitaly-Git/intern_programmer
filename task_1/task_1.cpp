@@ -62,7 +62,9 @@ bool isEvenNewV3(int value){
 
 void isEvenNewTest(){
     for(int8_t i=-127;i<127;++i)
-        assert(isEven(i)==isEvenNewV1(i)==isEvenNewV2(i)==isEvenNewV3(i));
+        assert(isEven(i)==isEvenNewV1(i) &&
+            isEvenNewV1(i)==isEvenNewV2(i) &&
+            isEvenNewV2(i)==isEvenNewV3(i));
         
-    std::cout<<"OK isEvenNewTest"<<std::endl;
+    std::cout<<"OK " <<__FUNCTION__ <<std::endl;
 }
