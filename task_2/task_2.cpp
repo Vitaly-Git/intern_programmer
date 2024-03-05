@@ -13,7 +13,7 @@
 //            память, характерное для вектора.
 //
 // 2. Циклический буфер через очередь.
-//    Плюсы: Максимально простая реализация, выполнится за О(1).
+//    Плюсы: Максимально простая реализация, доступ выполнится за О(1).
 //           Добавление элементов происходит быстрее за счет использования очереди.
 //    Минусы: Произвольный доступ к элементам отсутствует.
 
@@ -28,6 +28,7 @@ int main(){
 void ringBufferV1Test(){
 
     RingBufferV1 rb(3);
+
     assert(rb.writeNumber(0).first == true);
     assert(rb.writeNumber(1).first == true);
     assert(rb.writeNumber(2).first == true);
@@ -54,6 +55,7 @@ void ringBufferV1Test(){
 void ringBufferV2Test(){
 
     RingBufferV2 rb(3);
+
     assert(rb.writeNumber(0).first == true);
     assert(rb.writeNumber(1).first == true);
     assert(rb.writeNumber(2).first == true);
