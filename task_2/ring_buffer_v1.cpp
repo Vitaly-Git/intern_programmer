@@ -1,55 +1,86 @@
 #include "ring_buffer_v1.hpp"
 
-std::pair<bool, int> ringBufferV1::writeNumber(int number){
+std::pair<bool, int> RingBufferV1::writeNumber(int number){
     
-    int newWritePosition = writePosition + 1;
+    int newWriteIndex = writeIndex + 1;
 
-    if (newWritePosition == bufferSize)
-        newWritePosition = 0;
+    std::cout << "writing begin ..." << std::endl;
+
+    if (newWriteIndex == bufferSize)
+        newWriteIndex = 0;
     
-    if (newWritePosition == readPosition){
-        std::cout << "error wrtte " << number << " at position " << newWritePosition << 
-        ". read position achieved at " << readPosition << std::endl;
+    if (newWriteIndex == readIndex || 
+        newWriteIndex == 0 && readIndex == -1 && intBuffer.size()>0){
+        std::cout << "error write " << number << " at index " << newWriteIndex << 
+        ". read index achieved at " << readIndex << std::endl;
         return {false,-1};
     }
 
-    if (newWritePosition >= intBuffer.size())
+    if (newWriteIndex >= intBuffer.size())
         intBuffer.push_back(number);
     else
-        intBuffer[newWritePosition] = number;
+        intBuffer[newWriteIndex] = number;
 
-    writePosition = newWritePosition;
+    writeIndex = newWriteIndex;
 
     printBuffer();
 
-    return {true,writePosition};
+    return {true,writeIndex};
 }
 
-std::tuple<bool, int, int> ringBufferV1::readNumber(){
+std::tuple<bool, int, int> RingBufferV1::readNumber(){
     
     int result;
 
-    int newReadPosition = readPosition + 1;
+    std::cout << "reading begin ..." << std::endl;
 
-    if (newReadPosition == bufferSize)
-        newReadPosition = 0;
+    int newReadIndex = readIndex + 1;
+
+    if (newReadIndex == bufferSize)
+        newReadIndex = 0;
     
-    if (newReadPosition == writePosition){
-        std::cout << "error read at position " << newReadPosition << 
-        ". write position achieved at " << writePosition << std::endl;
+    if (newReadIndex == writeIndex || 
+        newReadIndex == 0 && writeIndex == -1){
+        std::cout << "error read at index " << newReadIndex << 
+        ". write index achieved at " << writeIndex << std::endl;
         return {false,-1,-1};
     }
 
-    result = intBuffer[newReadPosition];
+    result = intBuffer[newReadIndex];
 
-    readPosition = newReadPosition;
+    std::cout << "read " << result << " at idx.: " << newReadIndex << std::endl;
+
+    readIndex = newReadIndex;
 
     printBuffer();
 
-    return {true,readPosition,result};
+    return {true,readIndex,result};
 }
 
-void ringBufferV1::printBuffer(){
+std::tuple<bool, int, int> RingBufferV1::readNumber(int index){
+
+    std::cout << "reading by index begin ..." << std::endl;
+
+    if (index > bufferSize - 1){
+        std::cout << "error read at index " << index << 
+        ". buffer size " << bufferSize << " less that index " << index << std::endl;
+        return {false,-1,-1};
+    }
+
+    int readIndexBeforeChange = readIndex;
+    readIndex = index-1;
+
+    auto readResult = this->readNumber();
+
+    if (std::get<0>(readResult) == false)
+        readIndex = readIndexBeforeChange;
+
+    return readResult;    
+}
+
+void RingBufferV1::printBuffer(){
+
+    std::cout << "ring buffer [";
 
     for(auto it=intBuffer.begin(); it!=intBuffer.end(); ++it){
         if (it!=intBuffer.begin())
@@ -57,13 +88,15 @@ void ringBufferV1::printBuffer(){
         std::cout << *it;
     }
 
-    std::cout << " read pos.:" << readPosition << " write pos.:" << writePosition << std::endl;
+    std::cout << "]";
+
+    std::cout << " read idx.:" << readIndex << " write idx.:" << writeIndex << std::endl;
 }
 
-void ringBufferV1::clearBuffer(){
+void RingBufferV1::clearBuffer(){
     intBuffer.clear();
-    readPosition = -1;
-    writePosition = -1;   
+    readIndex = -1;
+    writeIndex = -1;   
     bufferSize = 0;
     std::cout << "buffer cleared" << std::endl;
 }
